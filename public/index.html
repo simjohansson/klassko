@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      body { font: Helvetica, Arial; overflow-x: hidden; }
+      .textGroup { text-align: center; display: none;}
+      .row { margin: 20px}
+      .secondButtons{display: none; margin-top: 10px}
+      #title {margin-top: 200px; text-align: center;}
+    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <div class="col-md-4 col-md-offset-4"id="title">
+    <h1>Klasskö</h1>
+    </div>
+	<div class="buttonGroup textGroup" hidden>
+		<div class="row">
+			<button id="firstCreateRoomBtn" class="btn btn-primary col-md-4 col-md-offset-4">
+      Skapa ett rum
+    </button>
+		</div>
+		<div class="row">
+			<button id="firstJoinRoomBtn" class="btn btn-primary col-md-4 col-md-offset-4">
+      Anslut till ett rum
+    </button>
+		</div>
+	</div>
+  <div class="col-md-4 col-md-offset-4 roomNameGroup textGroup" >
+    <div class="col-md-4 col-md-offset-4"id="secondTitle">
+  <h3>Namn på rum</h3>
+  </div>
+  <row>
+     <input id="roomName" type="text" class="col-md-4 col-md-offset-4"/>
+     <div class="col-md-4 col-md-offset-4">
+  <button id="secondCreateRoomBtn" class="btn btn-primary secondButtons">Skapa</button>
+  <button id="secondJoinRoomBtn" class="btn btn-primary secondButtons" />Anslut</button>
+     </div>
+  </row>
+  </div>
+	<script src="/socket.io/socket.io.js"></script>
+</body>
+<script type="text/javascript" src="client.js"></script>
+</html>
