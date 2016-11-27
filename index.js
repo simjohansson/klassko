@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var rooms = [];
 app.use(express.static('public'));
 
 app.get('/', function (req, res) {
@@ -46,6 +47,18 @@ io.on('connection', function (socket) {
   socket.on('createRoom', function (roomName) {
     var currentRoomSockets = findClientsSocketByRoomId(roomName);
     if (currentRoomSockets.length === 0) {
+      socket.leaveAll();
+      socket.join(roomName);
+      rooms.push(roomName);
+    } // Object.keys(socket.rooms)[0] Hur man får tag på roomnamnet
+  });
+
+  socket.on('joinRoom', function (roomName){
+    var room = rooms.filter(function(x){ 
+      return x==='roomName';
+      })[0];
+      
+    if (room) {
       socket.leaveAll();
       socket.join(roomName);
     } // Object.keys(socket.rooms)[0] Hur man får tag på roomnamnet
