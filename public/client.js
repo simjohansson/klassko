@@ -24,6 +24,7 @@ function HideStart() {
 }
 
 $(function () {
+    var roomName = '';
     $(".buttonGroup").fadeIn(1500);
 
     $('#firstCreateRoomBtn').click(function () {
@@ -38,8 +39,54 @@ $(function () {
         $("#secondCreateRoomBtn").hide();
     });
 
-    $("#secondCreateRoomBtn").click(function (e) { 
+    $("#secondCreateRoomBtn").click(function (e) {
         e.preventDefault();
-        socket.emit('createRoom', $("#roomName").val());
+        roomName = $("#roomName").val();
+        socket.emit('createRoom', roomName);
+
+        socket.on('newRoom', function (li) {
+            $("#intro").remove();
+            console.log(li);
+            $("#list").append(li);
+        });
+
+        socket.on('updateList', function (li) {
+            console.log(li);
+            $("#list").empty().append(li);
+            $("li").unbind("click");
+            $("li").click(function (e) {
+                e.preventDefault();
+                $(e.target).remove();
+                $("li").first().addClass("active");
+                var list = $("#list").html();
+                socket.emit('itemRemoved', { roomName: roomName, list: list });
+            });
+        });
+
     });
+
+    $("#secondJoinRoomBtn").click(function (e) {
+        e.preventDefault();
+        var name = $("#roomName").val();
+        socket.emit('joinRoom', name);
+        socket.once('joinedRoom', function (li) {
+            roomName = name;
+            $("#intro").remove();
+            console.log(li);
+            $("#list").append(li);
+            $("#createLiBtn").show();
+        });
+
+        socket.on('updateList', function (li) {
+            console.log(li);
+            $("#list").empty().append(li);
+        });
+
+    });
+
+    $("#createLiBtn").click(function (e) {
+        e.preventDefault();
+        socket.emit('queued', roomName);
+    });
+
 });

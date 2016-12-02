@@ -2,22 +2,22 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-var rooms = [];
 app.use(express.static('public'));
 
 app.get('/', function (req, res) {
   res.sendFile(__dirname + 'public/index.html');
 });
 
+var roomQueue = [];
+
 function findClientsSocketByRoomId(roomId) {
-  var res = []
-    , room = io.sockets.adapter.rooms[roomId];
-  if (room) {
-    for (var id in room) {
-      res.push(io.sockets.adapter.nsp.connected[id]);
-    }
-  }
-return res;
+return io.sockets.adapter.rooms[roomId];
+}
+
+function getRoom(roomName) {
+   return roomQueue.filter(function (room) {
+        return room.Name === roomName;
+      })[0];
 }
 
 io.on('connection', function (socket) {
@@ -45,24 +45,41 @@ io.on('connection', function (socket) {
   });
 
   socket.on('createRoom', function (roomName) {
-    var currentRoomSockets = findClientsSocketByRoomId(roomName);
-    if (currentRoomSockets.length === 0) {
+    var roomExists = findClientsSocketByRoomId(roomName);
+    if (!roomExists) {
       socket.leaveAll();
       socket.join(roomName);
-      rooms.push(roomName);
+      console.log("Created room " + roomName);
+      var room = { Name: roomName, list: '' };
+      roomQueue.push(room);
+      io.to(roomName).emit('newRoom', room.list);
     } // Object.keys(socket.rooms)[0] Hur man får tag på roomnamnet
   });
 
   socket.on('joinRoom', function (roomName){
-    var room = rooms.filter(function(x){ 
-      return x==='roomName';
-      })[0];
+    var room = getRoom(roomName);
       
     if (room) {
       socket.leaveAll();
       socket.join(roomName);
+      console.log("Joined room "+ roomName);
+      io.to(roomName).emit('joinedRoom', room.list);
     } // Object.keys(socket.rooms)[0] Hur man får tag på roomnamnet
   });
+
+  socket.on('queued', function (roomName) {
+    var room = getRoom(roomName);
+    var isActive = room.list.length == 0 ? 'active' : '';
+    room.list += "<li class='list-group-item "+ isActive + "'>" + findClientsSocketByRoomId(roomName).length + "</li>"
+    io.to(roomName).emit('updateList', room.list);
+  });
+
+  socket.on('itemRemoved', function (roomObject) {
+    var room = getRoom(roomObject.roomName);
+    room.list = roomObject.list;
+    io.to(roomObject.roomName).emit('updateList', roomObject.list);
+  });
+
 });
 
 http.listen(3000, function () {
