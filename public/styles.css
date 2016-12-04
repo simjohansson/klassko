@@ -1,0 +1,29 @@
+ body {
+      font: Helvetica, Arial;
+      overflow-x: hidden;
+    }
+    
+    .noneDisplay {
+      display: none;
+    }
+
+    .centerAlign {
+      text-align: center;
+    }
+
+    .row {
+      margin: 20px
+    }
+    
+    .hiddenButtons {
+      display: none;
+      margin-top: 10px
+    }
+    
+    #title {
+      margin-top: 150px;
+      text-align: center;
+    }
+    #list{
+    padding-left: 0px;
+    }

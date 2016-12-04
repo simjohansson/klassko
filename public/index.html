@@ -3,31 +3,7 @@
 
 <head>
   <title>Socket.IO chat</title>
-  <style>
-    body {
-      font: Helvetica, Arial;
-      overflow-x: hidden;
-    }
-    
-    .textGroup {
-      text-align: center;
-      display: none;
-    }
-    
-    .row {
-      margin: 20px
-    }
-    
-    .hiddenButtons {
-      display: none;
-      margin-top: 10px
-    }
-    
-    #title {
-      margin-top: 200px;
-      text-align: center;
-    }
-  </style>
+  <link rel="stylesheet" type="text/css" href="styles.css"s>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <!-- jQuery library -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -38,11 +14,13 @@
 <body>
   <div class="col-md-4 col-md-offset-4" id="title">
     <h1>Klasskö</h1>
-  </div>
-  <ol id="list">
+    <h4 id="roomHeader" class="noneDisplay"></h4>
+    <ol id="list">
   </ol>
+  </div>
+  
   <div id="intro">
-    <div class="buttonGroup textGroup" hidden>
+    <div class="buttonGroup noneDisplay" >
       <div class="row">
         <button id="firstCreateRoomBtn" class="btn btn-primary col-md-4 col-md-offset-4">
       Skapa ett rum
@@ -54,12 +32,18 @@
         </button>
       </div>
     </div>
-    <div class="col-md-4 col-md-offset-4 roomNameGroup textGroup">
-      <div class="col-md-4 col-md-offset-4" id="secondTitle">
+    <div class="col-md-4 col-md-offset-4 roomNameGroup noneDisplay centerAlign">
+      <div>
+        <h3>Ditt namn</h3>
+      </div>
+      <div class="row">
+        <input id="userName" type="text" />
+      </div>
+      <div >
         <h3>Namn på rum</h3>
       </div>
       <div class="row">
-        <input id="roomName" type="text" class="col-md-4 col-md-offset-4" />
+        <input id="roomName" type="text" />
         <div class="col-md-4 col-md-offset-4">
           <button id="secondCreateRoomBtn" class="btn btn-primary hiddenButtons">Skapa</button>
           <button id="secondJoinRoomBtn" class="btn btn-primary hiddenButtons">Anslut</button>
@@ -67,8 +51,8 @@
       </div>
     </div>
   </div>
-  <div class="col-md-4 col-md-offset-4">
-          <button id="createLiBtn" class="btn-primary hiddenButtons">Skapa li</button>
+  <div class ="col-md-4 col-md-offset-4 text-center">
+  <button id="createLiBtn" class="btn-primary hiddenButtons">Ställ mig i kö</button>
   </div>
   <script src="/socket.io/socket.io.js"></script>
 </body>

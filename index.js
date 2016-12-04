@@ -26,23 +26,6 @@ io.on('connection', function (socket) {
   socket.on('disconnect', function () {
     io.emit('chat message', 'a user disconnected');
   });
-  
-  socket.on('chat message', function (msg) {
-    if (msg.startsWith("/nick ")) {
-      io.emit('nickname', msg.substr(5));
-    }
-    else {
-      io.emit('chat message', msg);
-    }
-  });
-
-  socket.on('typing', function (nickname) {
-    io.emit('chat message', nickname + " is typing...");
-  });
-
-  socket.on('btnClick', function (text) {
-    console.log(text);
-  });
 
   socket.on('createRoom', function (roomName) {
     var roomExists = findClientsSocketByRoomId(roomName);
@@ -52,7 +35,7 @@ io.on('connection', function (socket) {
       console.log("Created room " + roomName);
       var room = { Name: roomName, list: '' };
       roomQueue.push(room);
-      io.to(roomName).emit('newRoom', room.list);
+      io.to(roomName).emit('newRoom', roomName);
     } // Object.keys(socket.rooms)[0] Hur man får tag på roomnamnet
   });
 
@@ -67,11 +50,11 @@ io.on('connection', function (socket) {
     } // Object.keys(socket.rooms)[0] Hur man får tag på roomnamnet
   });
 
-  socket.on('queued', function (roomName) {
-    var room = getRoom(roomName);
+  socket.on('queued', function (roomObject) {
+    var room = getRoom(roomObject.roomName);
     var isActive = room.list.length == 0 ? 'active' : '';
-    room.list += "<li class='list-group-item "+ isActive + "'>" + findClientsSocketByRoomId(roomName).length + "</li>"
-    io.to(roomName).emit('updateList', room.list);
+    room.list += "<li class='list-group-item "+ isActive + "'>" + roomObject.userName + "</li>"
+    io.to(roomObject.roomName).emit('updateList', room.list);
   });
 
   socket.on('itemRemoved', function (roomObject) {

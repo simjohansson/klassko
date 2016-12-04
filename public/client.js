@@ -1,22 +1,5 @@
 
 var socket = io();
-$('form').submit(function () {
-    socket.emit('chat message', $('#nickname').val() + $('#m').val());
-    $('#m').val('');
-    return false;
-});
-socket.on('chat message', function (msg) {
-    $('#messages').append($('<li>').text(msg));
-});
-socket.on('nickname', function (nickname) {
-    $('#nickname').val(nickname);
-});
-$('#m').keyup(function () {
-    socket.emit('typing', nickname);
-});
-socket.on('typing', function (msg) {
-    $('#messages').append($('<li>').text(msg));
-});
 
 function HideStart() {
     $(".buttonGroup").hide();
@@ -25,6 +8,7 @@ function HideStart() {
 
 $(function () {
     var roomName = '';
+    var userName = '';
     $(".buttonGroup").fadeIn(1500);
 
     $('#firstCreateRoomBtn').click(function () {
@@ -42,12 +26,12 @@ $(function () {
     $("#secondCreateRoomBtn").click(function (e) {
         e.preventDefault();
         roomName = $("#roomName").val();
+        userName = $("#userName").val();
         socket.emit('createRoom', roomName);
 
-        socket.on('newRoom', function (li) {
+        socket.once('newRoom', function (roomName) {
             $("#intro").remove();
-            console.log(li);
-            $("#list").append(li);
+            $("#roomHeader").text(roomName).removeClass("noneDisplay");
         });
 
         socket.on('updateList', function (li) {
@@ -68,13 +52,15 @@ $(function () {
     $("#secondJoinRoomBtn").click(function (e) {
         e.preventDefault();
         var name = $("#roomName").val();
+        userName = $("#userName").val();
         socket.emit('joinRoom', name);
         socket.once('joinedRoom', function (li) {
             roomName = name;
             $("#intro").remove();
             console.log(li);
             $("#list").append(li);
-            $("#createLiBtn").show();
+            $("#createLiBtn").addClass("btn");
+            $("#roomHeader").text(roomName).removeClass("noneDisplay");
         });
 
         socket.on('updateList', function (li) {
@@ -86,7 +72,7 @@ $(function () {
 
     $("#createLiBtn").click(function (e) {
         e.preventDefault();
-        socket.emit('queued', roomName);
+        socket.emit('queued', {roomName: roomName, userName: userName });
     });
 
 });
