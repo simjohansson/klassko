@@ -11,6 +11,11 @@ $(function () {
     var userName = '';
     $(".buttonGroup").fadeIn(1500);
 
+    function sendListChanged() {
+        var list = $("#list").html();
+        socket.emit('listChanged', { roomName: roomName, list: list });
+    }
+
     $('#firstCreateRoomBtn').click(function () {
         HideStart();
         $("#secondJoinRoomBtn").hide();
@@ -35,15 +40,20 @@ $(function () {
         });
 
         socket.on('updateList', function (li) {
-            console.log(li);
             $("#list").empty().append(li);
+            Sortable.create(list, {
+                onUpdate: function (/**Event*/evt) {
+                    $("#list").children().removeClass("active")
+                    $("li").first().addClass("active");
+                    sendListChanged();
+                }
+            });
             $("li").unbind("click");
             $("li").click(function (e) {
                 e.preventDefault();
                 $(e.target).remove();
                 $("li").first().addClass("active");
-                var list = $("#list").html();
-                socket.emit('itemRemoved', { roomName: roomName, list: list });
+                sendListChanged();
             });
         });
 

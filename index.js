@@ -57,7 +57,7 @@ io.on('connection', function (socket) {
     io.to(roomObject.roomName).emit('updateList', room.list);
   });
 
-  socket.on('itemRemoved', function (roomObject) {
+  socket.on('listChanged', function (roomObject) {
     var room = getRoom(roomObject.roomName);
     room.list = roomObject.list;
     io.to(roomObject.roomName).emit('updateList', roomObject.list);
