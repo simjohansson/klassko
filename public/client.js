@@ -16,6 +16,7 @@ $(function () {
         socket.emit('listChanged', { roomName: roomName, list: list });
     }
 
+
     $('#firstCreateRoomBtn').click(function () {
         HideStart();
         $("#secondJoinRoomBtn").hide();
@@ -40,6 +41,7 @@ $(function () {
         });
 
         socket.on('updateList', function (li) {
+            debugger;
             $("#list").empty().append(li);
             Sortable.create(list, {
                 onUpdate: function (/**Event*/evt) {
@@ -75,6 +77,7 @@ $(function () {
 
         socket.on('updateList', function (li) {
             console.log(li);
+            debugger;
             $("#list").empty().append(li);
         });
 

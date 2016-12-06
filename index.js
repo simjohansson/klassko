@@ -8,59 +8,41 @@ app.get('/', function (req, res) {
   res.sendFile(__dirname + 'public/index.html');
 });
 
-var roomQueue = [];
-
-function findClientsSocketByRoomId(roomId) {
-return io.sockets.adapter.rooms[roomId];
-}
-
-function getRoom(roomName) {
-   return roomQueue.filter(function (room) {
-        return room.Name === roomName;
-      })[0];
-}
+var roomModule = require('./roomModule');
 
 io.on('connection', function (socket) {
   console.log('a user connected');
-    
+
   socket.on('disconnect', function () {
     io.emit('chat message', 'a user disconnected');
   });
 
   socket.on('createRoom', function (roomName) {
-    var roomExists = findClientsSocketByRoomId(roomName);
-    if (!roomExists) {
+    if (!io.sockets.adapter.rooms[roomName] && roomModule.createRoom(roomName)) {
       socket.leaveAll();
       socket.join(roomName);
-      console.log("Created room " + roomName);
-      var room = { Name: roomName, list: '' };
-      roomQueue.push(room);
       io.to(roomName).emit('newRoom', roomName);
-    } // Object.keys(socket.rooms)[0] Hur man får tag på roomnamnet
+    }
   });
 
-  socket.on('joinRoom', function (roomName){
-    var room = getRoom(roomName);
-      
+  socket.on('joinRoom', function (roomName) {
+    var room = roomModule.getRoom(roomName);
     if (room) {
       socket.leaveAll();
       socket.join(roomName);
-      console.log("Joined room "+ roomName);
       io.to(roomName).emit('joinedRoom', room.list);
     } // Object.keys(socket.rooms)[0] Hur man får tag på roomnamnet
   });
 
   socket.on('queued', function (roomObject) {
-    var room = getRoom(roomObject.roomName);
-    var isActive = room.list.length == 0 ? 'active' : '';
-    room.list += "<li class='list-group-item "+ isActive + "'>" + roomObject.userName + "</li>"
-    io.to(roomObject.roomName).emit('updateList', room.list);
+    var roomList = roomModule.addListItem(roomObject.roomName, roomObject.userName)
+    io.to(roomObject.roomName).emit('updateList', roomList);
   });
 
   socket.on('listChanged', function (roomObject) {
-    var room = getRoom(roomObject.roomName);
-    room.list = roomObject.list;
-    io.to(roomObject.roomName).emit('updateList', roomObject.list);
+    if (roomModule.listChanged(roomObject.roomName, roomObject.list)) {
+      io.to(roomObject.roomName).emit('updateList', roomObject.list);
+    }
   });
 
 });
