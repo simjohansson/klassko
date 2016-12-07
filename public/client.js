@@ -43,9 +43,10 @@ $(function () {
         socket.on('updateList', function (li) {
             debugger;
             $("#list").empty().append(li);
+            $("#list").children().removeClass("noneDisplay");
             Sortable.create(list, {
                 onUpdate: function (/**Event*/evt) {
-                    $("#list").children().removeClass("active")
+                    $("#list").children().removeClass("active");
                     $("li").first().addClass("active");
                     sendListChanged();
                 }

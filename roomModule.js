@@ -7,6 +7,7 @@ module.exports = (function () {
             return room.name === roomName;
         })[0];
     }
+
     function listChanged(roomName, list) {
         var room = getRoom(roomName);
         if (room) {
@@ -33,7 +34,7 @@ module.exports = (function () {
         var room = getRoom(roomName);
         if (room) {
             var isActive = room.list.length == 0 ? 'active' : '';
-            room.list += "<li class='list-group-item " + isActive + "'>" + userName + "</li>"
+            room.list += "<li class='list-group-item " + isActive + "'>" + userName + "<button type='button' class='close' aria-label='Close'><span aria-hidden='true'>&times;</span></button></li>"
             return room.list;
         }
         else {
