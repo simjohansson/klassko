@@ -22,21 +22,32 @@ io.on('connection', function (socket) {
     io.emit('chat message', 'a user disconnected');
   });
 
-  socket.on('createRoom', function (roomName) {
-    if (!io.sockets.adapter.rooms[roomName] && roomModule.createRoom(roomName)) {
+  socket.on('createRoom', function (roomObject, fn) {
+    if (!io.sockets.adapter.rooms[roomObject.roomName] && roomModule.createRoom(roomObject)) {
       socket.leaveAll();
-      socket.join(roomName);
-      io.to(roomName).emit('newRoom', roomName);
+      socket.join(roomObject.roomName);
+      fn(roomObject);
+    }
+    else{
+      fn('Rummet finns redan.');
     }
   });
 
-  socket.on('joinRoom', function (roomName) {
-    var room = roomModule.getRoom(roomName);
-    if (room) {
-      socket.leaveAll();
-      socket.join(roomName);
-      io.to(roomName).emit('joinedRoom', room.list);
-    } // Object.keys(socket.rooms)[0] Hur man får tag på roomnamnet
+  socket.on('joinRoom', function (roomObject, fn) {
+    var room = roomModule.joinRoom(roomObject);
+    switch (room) {
+      case 'roomNotExists':
+        fn('Rummet kunde inte hittas.');
+        break;
+      case 'userNameExists':        
+      fn('Användarnamnet finns redan.');
+        break;
+      default:
+        socket.leaveAll();
+        socket.join(roomObject.roomName);
+        fn(room);
+        break;
+    }
   });
 
   socket.on('queued', function (roomObject) {

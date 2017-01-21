@@ -8,6 +8,20 @@ module.exports = (function () {
         })[0];
     }
 
+    function joinRoom(roomObject) {
+        var room = getRoom(roomObject.roomName);
+        if (!room) {            
+            return "roomNotExists";
+        }
+        else if(room.users.indexOf(roomObject.userName) !== -1) {
+            return "userNameExists";
+        }
+        else{
+            room.users.push(roomObject.userName);
+            return room;
+        }
+    }
+
     function listChanged(roomName, list) {
         var room = getRoom(roomName);
         if (room) {
@@ -19,10 +33,10 @@ module.exports = (function () {
         }
     }
 
-    function createRoom(roomName) {
-        var room = getRoom(roomName);
+    function createRoom(roomObject) {
+        var room = getRoom(roomObject.roomName);
         if (!room) {
-            roomObjects.push({ name: roomName, list: [] });
+            roomObjects.push({ name: roomObject.roomName, list: [], users: [roomObject.userName] });
             return true;
         }
         else {
@@ -34,7 +48,7 @@ module.exports = (function () {
         var room = getRoom(roomName);
         if (room) {
             var isActive = room.list.length == 0 ? 'active' : '';
-            room.list += "<li class='list-group-item " + isActive + "'>" + userName + "<button type='button' class='close' aria-label='Close'><span aria-hidden='true'>&times;</span></button></li>"
+            room.list += "<li id='"+ userName +"' class='list-group-item " + isActive + "'>" + userName + "<button type='button' class='close' aria-label='Close'><span aria-hidden='true'>&times;</span></button></li>"
             return room.list;
         }
         else {
@@ -43,9 +57,9 @@ module.exports = (function () {
     }
 
     return {
-        getRoom: getRoom,
         listChanged: listChanged,
         createRoom: createRoom,
-        addListItem: addListItem
+        addListItem: addListItem,
+        joinRoom: joinRoom
     };
 } ());

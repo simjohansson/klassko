@@ -26,14 +26,19 @@ $(function () {
             e.preventDefault();
             roomName = $("#roomName").val();
             userName = $("#userName").val();
-            socket.emit('createRoom', roomName);
-            socket.once('newRoom', newRoomFromSocket);
+            socket.emit('createRoom', {roomName: roomName, userName: userName}, newRoomFromSocket);
             socket.on('updateList', updateListFromSocket);
         }
 
-        function newRoomFromSocket(roomName) {
-            $("#intro").remove();
-            $("#roomHeader").text(roomName).removeClass("noneDisplay");
+        function newRoomFromSocket(result) {
+            if (typeof result !== 'string') {
+                $("#intro").remove();
+                $("#roomHeader").text(result.roomName).removeClass("noneDisplay");
+            }
+            else {                
+                $(".alert").remove();
+                $("#connectBtnDiv").append("<div class='alert alert-danger'>" + result + "</div>")
+            }
         }
 
         function updateListFromSocket(li) {
@@ -86,20 +91,34 @@ $(function () {
             e.preventDefault();
             roomName = $("#roomName").val();
             userName = $("#userName").val();
-            socket.emit('joinRoom', roomName);
-            socket.once('joinedRoom', joinedRoomFromSocket);
+            socket.emit('joinRoom', {roomName: roomName, userName: userName}, joinedRoomFromSocket);
             socket.on('updateList', updateListFromSocket);
         }
 
-        function joinedRoomFromSocket(li) {
-            $("#intro").remove();
-            $("#list").append(li);
-            $("#createLiBtn").addClass("btn");
-            $("#roomHeader").text(roomName).removeClass("noneDisplay");
+        function joinedRoomFromSocket(result) {
+            if (typeof result !== 'string') {
+                $("#intro").remove();
+                $("#list").append(result.list);
+                $("#createLiBtn").addClass("btn");
+                $("#roomHeader").text(result.name).removeClass("noneDisplay");
+            }
+            else {
+                $(".alert").remove();
+                $("#connectBtnDiv").append("<div class='alert alert-danger'>" + result + "</div>")
+            }
         }
 
         function updateListFromSocket(li) {
             $("#list").empty().append(li);
+            if ($("#" + userName).length == 0) {
+                $("#createLiBtn").prop('disabled', false);
+                $("#createLiBtn").removeAttr("title");
+            }
+            else {
+                $("#createLiBtn").prop('disabled', true);
+                $("#createLiBtn").attr('title', 'Du står redan i kö');
+
+            }
         }
 
         function createListItem(e) {
