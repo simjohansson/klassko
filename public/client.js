@@ -28,6 +28,7 @@ $(function () {
             userName = $("#userName").val();
             socket.emit('createRoom', {roomName: roomName, userName: userName}, newRoomFromSocket);
             socket.on('updateList', updateListFromSocket);
+            socket.on('userRemoved', removeUser);
         }
 
         function newRoomFromSocket(result) {
@@ -39,6 +40,11 @@ $(function () {
                 $(".alert").remove();
                 $("#connectBtnDiv").append("<div class='alert alert-danger'>" + result + "</div>")
             }
+        }
+
+        function removeUser(userId) {
+            $("#" + userId).remove();
+            sendListChanged();
         }
 
         function updateListFromSocket(li) {
@@ -93,6 +99,12 @@ $(function () {
             userName = $("#userName").val();
             socket.emit('joinRoom', {roomName: roomName, userName: userName}, joinedRoomFromSocket);
             socket.on('updateList', updateListFromSocket);
+            socket.on('roomDeleted', roomDeleted);
+            
+        }
+
+        function roomDeleted(){
+            $("body").val("Rummet var borttaget, vänligen ladda om sidan");
         }
 
         function joinedRoomFromSocket(result) {
@@ -110,7 +122,7 @@ $(function () {
 
         function updateListFromSocket(li) {
             $("#list").empty().append(li);
-            if ($("#" + userName).length == 0) {
+            if ($("#" + socket.id).length == 0) {
                 $("#createLiBtn").prop('disabled', false);
                 $("#createLiBtn").removeAttr("title");
             }

@@ -18,12 +18,25 @@ var roomModule = require('./roomModule');
 io.on('connection', function (socket) {
   console.log('a user connected');
 
-  socket.on('disconnect', function () {
-    io.emit('chat message', 'a user disconnected');
+  socket.on('disconnecting', function () {
+    var roomName = Object.keys(socket.rooms)[0];
+    if (roomName && roomName != socket.id) {
+      var result = roomModule.leaveRoom(roomName, socket.id);
+      if (typeof result === 'string') {
+        switch (result) {
+          case 'roomDeleted':
+            io.to(roomName).emit('roomDeleted');
+            break;
+          case 'userRemoved':
+            io.to(roomName).emit('userRemoved', socket.id);
+            break;
+        }
+      }
+    }
   });
-
+ 
   socket.on('createRoom', function (roomObject, fn) {
-    if (!io.sockets.adapter.rooms[roomObject.roomName] && roomModule.createRoom(roomObject)) {
+    if (roomModule.createRoom(roomObject, socket.id)) {
       socket.leaveAll();
       socket.join(roomObject.roomName);
       fn(roomObject);
@@ -34,7 +47,7 @@ io.on('connection', function (socket) {
   });
 
   socket.on('joinRoom', function (roomObject, fn) {
-    var room = roomModule.joinRoom(roomObject);
+    var room = roomModule.joinRoom(roomObject, socket.id);
     switch (room) {
       case 'roomNotExists':
         fn('Rummet kunde inte hittas.');
@@ -51,12 +64,12 @@ io.on('connection', function (socket) {
   });
 
   socket.on('queued', function (roomObject) {
-    var roomList = roomModule.addListItem(roomObject.roomName, roomObject.userName)
+    var roomList = roomModule.addListItem(roomObject, socket.id)
     io.to(roomObject.roomName).emit('updateList', roomList);
   });
 
   socket.on('listChanged', function (roomObject) {
-    if (roomModule.listChanged(roomObject.roomName, roomObject.list)) {
+    if (roomModule.listChanged(roomObject)) {
       io.to(roomObject.roomName).emit('updateList', roomObject.list);
     }
   });
