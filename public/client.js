@@ -28,7 +28,7 @@ $(function () {
             userName = $("#userName").val();
             socket.emit('createRoom', {roomName: roomName, userName: userName}, newRoomFromSocket);
             socket.on('updateList', updateListFromSocket);
-            socket.on('userRemoved', removeUser);
+            socket.on('userRemoved', removeUser);            
         }
 
         function newRoomFromSocket(result) {
@@ -50,17 +50,10 @@ $(function () {
         function updateListFromSocket(li) {
             $("#list").empty().append(li);
             $("#list").children().removeClass("noneDisplay");
-            Sortable.create(list, {
-                onUpdate: function (/**Event*/evt) {
-                    $("#list").children().removeClass("active");
-                    $("li").first().addClass("active");
-                    sendListChanged();
-                }
-            });
-            $("li").unbind("click");
-            $("li").click(function (e) {
+            $(".close").unbind("click");
+            $(".close").click(function (e) {
                 e.preventDefault();
-                $(e.target).remove();
+                $(e.target.parentElement.parentElement).remove();
                 $("li").first().addClass("active");
                 sendListChanged();
             });
@@ -104,13 +97,16 @@ $(function () {
         }
 
         function roomDeleted(){
-            $("body").val("Rummet var borttaget, vänligen ladda om sidan");
+            $("#roomHeader").text("Rummet är borttaget, vänligen ladda om sidan");
+            $("#list").remove();
+            $("#createLiBtn").remove();
         }
 
         function joinedRoomFromSocket(result) {
             if (typeof result !== 'string') {
                 $("#intro").remove();
                 $("#list").append(result.list);
+                $("button.close").remove();
                 $("#createLiBtn").addClass("btn");
                 $("#roomHeader").text(result.name).removeClass("noneDisplay");
             }
@@ -122,6 +118,7 @@ $(function () {
 
         function updateListFromSocket(li) {
             $("#list").empty().append(li);
+            $("button.close").remove();
             if ($("#" + socket.id).length == 0) {
                 $("#createLiBtn").prop('disabled', false);
                 $("#createLiBtn").removeAttr("title");
